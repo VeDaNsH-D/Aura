@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # --- PostgreSQL Database Service ---
+  db:
+    image: postgres:13-alpine
+    container_name: campus_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # --- Redis Service for Caching and Celery ---
+  redis:
+    image: redis:6-alpine
+    container_name: campus_redis
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # --- Flask Backend API Service ---
+  backend:
+    build: ./backend
+    container_name: campus_backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/usr/src/app # Mount for development hot-reloading
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # --- React Frontend Service (served by Nginx) ---
+  frontend:
+    build: ./frontend
+    container_name: campus_frontend
+    ports:
+      - "3000:80" # Map local port 3000 to Nginx's port 80
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # --- Celery Worker Service ---
+  worker:
+    build: ./backend # Uses the same image as the backend
+    container_name: campus_worker
+    command: celery -A celery_worker.celery worker --loglevel=info
+    volumes:
+      - ./backend:/usr/src/app
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - db
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # --- Celery Beat Scheduler Service ---
+  beat:
+    build: ./backend # Also uses the backend image
+    container_name: campus_beat
+    command: celery -A celery_worker.celery beat --loglevel=info
+    volumes:
+      - ./backend:/usr/src/app
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - db
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
