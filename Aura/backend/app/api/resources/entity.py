@@ -1,21 +1,25 @@
 from flask_restx import Resource
+
 from ..dto import EntityDto
-from ...models import Entity
+from ...services.resolution_service import get_all_entities
 
-# Get the namespace from the DTO
-api = EntityDto.api
+# Get the namespace from the DTO for consistency
+ns = EntityDto.ns
 
-@api.route('/')
+@ns.route("")
 class EntityList(Resource):
     """
-    Resource for handling the collection of entities.
+    Handles operations related to the list of all entities.
     """
-    @api.doc('list_entities')
-    @api.marshal_list_with(EntityDto.entity, envelope='entities')
+    @ns.doc('list_entities', description='Get a list of all campus entities (students, staff, and assets).')
+    @ns.marshal_list_with(EntityDto.entity, envelope='entities')
     def get(self):
         """
-        List all entities.
+        Returns the complete list of all entities.
 
-        Fetches all entities from the database and returns them in a list.
+        This endpoint calls the resolution service to fetch all records from the
+        Entity table in the database and serializes the response using the EntityDto.
         """
-        return Entity.query.all()
+        # Call the service layer function to get the data
+        entities = get_all_entities()
+        return entities, 200
