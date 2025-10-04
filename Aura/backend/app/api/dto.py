@@ -29,3 +29,20 @@ class EventDto:
         'source_type': fields.String(required=True, description='The source system of the event (e.g., swipe, wifi)'),
         'description': fields.String(required=True, description='A human-readable description of the event'),
     })
+
+class AlertDto:
+    """
+    Data Transfer Objects for the Alert model.
+    """
+    # Create a namespace for alerts
+    api = Namespace('alert', description='Alert related operations')
+
+    # Define the model for a single alert
+    alert = api.model('Alert', {
+        'id': fields.Integer(readonly=True, description='The unique identifier of an alert'),
+        'timestamp': fields.DateTime(required=True, description='The time the alert was triggered', dt_format='iso8601'),
+        'severity': fields.String(required=True, description='The severity of the alert (e.g., low, medium, high)'),
+        'message': fields.String(required=True, description='A human-readable message describing the alert'),
+        'is_acknowledged': fields.Boolean(required=True, description='Flag indicating if the alert has been reviewed'),
+        'entity_name': fields.String(attribute='entity.name', description='Name of the associated entity'),
+    })
