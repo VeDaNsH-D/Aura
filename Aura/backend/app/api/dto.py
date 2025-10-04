@@ -24,6 +24,7 @@ class EventDto:
 
     # Define the model for a single event
     event = api.model('Event', {
+        'id': fields.Integer(readonly=True, description='The unique identifier of the event'),
         'timestamp': fields.DateTime(required=True, description='The time the event occurred', dt_format='iso8601'),
         'location': fields.String(required=True, description='The location where the event took place'),
         'source_type': fields.String(required=True, description='The source system of the event (e.g., swipe, wifi)'),
@@ -46,3 +47,4 @@ class AlertDto:
         'is_acknowledged': fields.Boolean(required=True, description='Flag indicating if the alert has been reviewed'),
         'entity_name': fields.String(attribute='entity.name', description='Name of the associated entity'),
     })
+
