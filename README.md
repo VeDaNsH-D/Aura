@@ -1,7 +1,7 @@
 # Aura: Campus Safety and Alert System
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/OT-OS/Aura/main/Aura_logo.png" alt="Aura Logo" width="200"/>
+  <img src="https://github.com/VeDaNsH-D/Aura/Aura/Aura_logo.png" alt="Aura Logo" width="200"/>
 </p>
 
 <p align="center">
@@ -71,7 +71,7 @@ All services are connected via a custom bridge network, ensuring secure and effi
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/OT-OS/Aura.git
+    git clone https://github.com/VeDaNsH-D/Aura.git
     cd Aura
     ```
 
