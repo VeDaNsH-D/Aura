@@ -1,24 +1,27 @@
 from flask_restx import Resource
+
 from ..dto import EventDto
-from ...models import Event
+from ...services.timeline_service import get_timeline_for_entity
 
-# Get the namespace from the DTO
-api = EventDto.api
+# Get the namespace from the DTO for consistency
+ns = EventDto.ns
 
-@api.route('/<int:entity_id>')
-@api.param('entity_id', 'The ID of the entity')
+@ns.route("/<int:entity_id>")
+@ns.param('entity_id', 'The unique identifier for the entity')
 class Timeline(Resource):
     """
-    Resource for retrieving the timeline of a specific entity.
+    Handles operations related to the activity timeline of a specific entity.
     """
-    @api.doc('get_entity_timeline')
-    @api.marshal_list_with(EventDto.event, envelope='events')
-    def get(self, entity_id):
+    @ns.doc('get_entity_timeline', description='Get the chronological event timeline for a specific entity.')
+    @ns.marshal_list_with(EventDto.event, envelope='events')
+    def get(self, entity_id: int):
         """
-        Get the event timeline for a specific entity.
+        Returns the event timeline for a single entity.
 
-        Fetches all events for a given entity, sorted from most recent to oldest.
+        This endpoint calls the timeline service to fetch all event records
+        associated with the provided entity_id, sorts them by timestamp,
+        and serializes the response using the EventDto.
         """
-        # Query the database for all events matching the entity_id,
-        # ordered by the timestamp in descending order (most recent first).
-        return Event.query.filter_by(entity_id=entity_id).order_by(Event.timestamp.desc()).all()
+        # Call the service layer function to get the data
+        timeline = get_timeline_for_entity(entity_id)
+        return timeline, 200
